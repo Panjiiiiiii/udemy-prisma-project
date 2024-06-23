@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from 'express'
-import { prismaCilent } from '..';
-import {hashSync, compareSync} from 'bcrypt';
+import { prismaClient } from '..';
+import { hashSync, compareSync } from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../secrets';
 import { BadRequestsException } from '../exceptions/bad-requests';
@@ -12,11 +12,11 @@ export const signup = async (req: Request, res:Response, next: NextFunction) => 
     SignUpSchema.parse(req.body)
     const {email, password, name} = req.body;
 
-    let user = await prismaCilent.user.findFirst({where: {email}})
+    let user = await prismaClient.user.findFirst({where: {email}})
     if (user) {
         new BadRequestsException('User already exists!', ErrorCode.USER_ALREADY_EXISTS)
     }
-    user = await prismaCilent.user.create({
+    user = await prismaClient.user.create({
         data:{
             name,
             email,
@@ -30,7 +30,7 @@ export const signup = async (req: Request, res:Response, next: NextFunction) => 
 export const login = async (req: Request, res:Response) => {
     const {email, password} = req.body;
 
-    let user = await prismaCilent.user.findFirst({where: {email}})
+    let user = await prismaClient.user.findFirst({where: {email}})
     if (!user) {
         throw new NotFoundException('User not found.', ErrorCode.USER_NOT_FOUND)
     }
